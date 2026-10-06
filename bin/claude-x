@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# Run Claude Code through the local cx router. Scoped to this one process: sets HTTPS_PROXY and
+# NODE_EXTRA_CA_CERTS only for `claude`. Never sets ANTHROPIC_BASE_URL (Remote Control needs the
+# real api.anthropic.com host). Fails loudly if the router is down; it never falls back silently.
+set -euo pipefail
+CX_HOME="${CX_HOME:-$HOME/.cx}"
+PORT="${CX_PORT:-8319}"
+
+if ! (exec 3<>"/dev/tcp/127.0.0.1/$PORT") 2>/dev/null; then
+  echo "claude-x: router is not listening on 127.0.0.1:$PORT (start it with: cx start)" >&2
+  exit 1
+fi
+if [ ! -f "$CX_HOME/ca.pem" ]; then
+  echo "claude-x: no CA at $CX_HOME/ca.pem (create it with: cx ca init)" >&2
+  exit 1
+fi
+
+export HTTPS_PROXY="http://127.0.0.1:$PORT"
+export NO_PROXY="localhost,127.0.0.1,::1"
+export NODE_EXTRA_CA_CERTS="$CX_HOME/ca.pem"
+exec claude "$@"

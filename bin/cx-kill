@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+# Emergency stop for the cx router.
+#  - stops the router (any `cx.js start` process)
+#  - stops Claude sessions started by `claude-x` (identified by HTTPS_PROXY pointing at the
+#    router); a plain `claude` is never touched
+#  - the router never changes anything system-wide, so there is nothing else to undo
+#  --purge  also deletes ~/.cx (the local CA, its key and the leaf certificates)
+set -u
+PORT="${CX_PORT:-8319}"
+CX_HOME="${CX_HOME:-$HOME/.cx}"
+
+stopped=0
+for pid in $(pgrep -f 'cx\.js start' 2>/dev/null); do
+  [ "$pid" = "$$" ] && continue
+  if kill "$pid" 2>/dev/null; then echo "stopped router (pid $pid)"; stopped=$((stopped + 1)); fi
+done
+
+for pid in $(pgrep -f '(^|/)claude( |$)' 2>/dev/null); do
+  [ "$pid" = "$$" ] && continue
+  if tr '\0' '\n' < "/proc/$pid/environ" 2>/dev/null | grep -qx "HTTPS_PROXY=http://127.0.0.1:$PORT"; then
+    if kill "$pid" 2>/dev/null; then echo "stopped claude-x session (pid $pid)"; stopped=$((stopped + 1)); fi
+  fi
+done
+
+sleep 1
+for pid in $(pgrep -f 'cx\.js start' 2>/dev/null); do
+  [ "$pid" = "$$" ] && continue
+  kill -9 "$pid" 2>/dev/null && echo "force-killed router (pid $pid)"
+done
+
+if [ "${1:-}" = "--purge" ]; then
+  rm -rf -- "$CX_HOME" && echo "deleted $CX_HOME"
+fi
+
+[ "$stopped" -eq 0 ] && echo "nothing was running"
+echo "plain 'claude' is unaffected."

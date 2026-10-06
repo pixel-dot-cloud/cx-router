@@ -1,0 +1,10 @@
+{
+  "name": "cx-router",
+  "version": "0.0.1",
+  "description": "Local router so Claude Code subagents can run OpenAI plan-usage models (work in progress)",
+  "private": true,
+  "license": "MIT",
+  "bin": { "cx": "bin/cx.js", "claude-x": "bin/claude-x" },
+  "scripts": { "test": "node --test" },
+  "engines": { "node": ">=22" }
+}
