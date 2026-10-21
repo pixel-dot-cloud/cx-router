@@ -7,8 +7,7 @@ for open-source and locally hosted apps.
 
 **Status: work in progress.** Not affiliated with, endorsed by, or supported by Anthropic or OpenAI.
 
-## What works today
-
+## Built
 - **`cx login`**: browser sign-in with ChatGPT (OAuth + PKCE, loopback callback). It follows the
   published open-source flow: dynamic client registration, ID-token verification (signature, issuer,
   audience, expiry, nonce) and a check that ChatGPT plan usage was actually granted. Credentials are
@@ -20,10 +19,7 @@ for open-source and locally hosted apps.
 - **`claude-x`**: launches `claude` through the router for that one process only
   (`HTTPS_PROXY` + `NODE_EXTRA_CA_CERTS`). It never sets `ANTHROPIC_BASE_URL`.
 - **`cx-kill`**: stops the router and any `claude-x` sessions; nothing system-wide is ever changed.
-
-## Not built yet
-
-Translating `gpt-*` requests (Anthropic Messages to OpenAI Responses and back) so those models can
+translating `gpt-*` requests (Anthropic Messages to OpenAI Responses and back) so those models can
 back Claude Code subagents. Only the passthrough and the login exist so far.
 
 ## Security model
