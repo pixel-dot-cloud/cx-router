@@ -19,8 +19,10 @@ for open-source and locally hosted apps.
 - **`claude-x`**: launches `claude` through the router for that one process only
   (`HTTPS_PROXY` + `NODE_EXTRA_CA_CERTS`). It never sets `ANTHROPIC_BASE_URL`.
 - **`cx-kill`**: stops the router and any `claude-x` sessions; nothing system-wide is ever changed.
+
+latest feature:
 translating `gpt-*` requests (Anthropic Messages to OpenAI Responses and back) so those models can
-back Claude Code subagents. Only the passthrough and the login exist so far.
+back Claude Code subagents.
 
 ## Security model
 
